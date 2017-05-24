@@ -13,8 +13,8 @@ Since that time I was thinking about how can we go further towards a more natura
 
 ## Roadmap
 
-* Chapter 0 - Reference CPU code
-* Chapter 1 - Separated host and device code
+* [Chapter 0 - Reference CPU code](chapter-0/README.md)
+* [Chapter 1 - Separated host and device code](chapter-1/README.md)
 * Chapter 2 - Naive approach: Merging host and device code with `#![cfg]`
 * Chapter 3 - Better approach: Merging host and device code with **Compiler Plugins** / **Procedural Macros**
 * Chapter 4 - Beyond CUDA: Is the approch good for OpenCL as well?
