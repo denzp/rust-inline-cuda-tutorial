@@ -36,6 +36,4 @@ fn main() {
     println!("Output image is {}x{} => {} pixels", output_image.width, output_image.height, output_image.pixels.len());
 
     output_image.save(output_path).unwrap();
-
-    println!("{}", rayon::current_num_threads());
 }

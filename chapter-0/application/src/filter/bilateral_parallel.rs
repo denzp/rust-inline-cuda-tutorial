@@ -89,7 +89,17 @@ mod tests {
 
         assert_eq!(current_output.width, reference_output.width);
         assert_eq!(current_output.height, reference_output.height);
-        assert_eq!(current_output.pixels, reference_output.pixels);
+        assert_eq!(current_output.pixels.len(), reference_output.pixels.len());
+
+        let mut defferent_pixels_count = 0;
+
+        for index in 0..current_output.pixels.len() {
+            if current_output.pixels[index] != reference_output.pixels[index] {
+                defferent_pixels_count += 1;
+            }
+        }
+
+        assert_eq!(defferent_pixels_count, 0);
     }
 
     #[bench]
