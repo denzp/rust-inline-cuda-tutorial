@@ -1,0 +1,11 @@
+[package]
+name = "chapter-1-application"
+version = "0.1.0"
+authors = ["Denys Zariaiev <denys.zariaiev@gmail.com>"]
+build = "build_kernel.rs"
+
+[dependencies]
+png = "0.7"
+clap = "2.24"
+lazy_static = "0.2"
+cuda = { git = "https://github.com/japaric/cuda" }

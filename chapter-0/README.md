@@ -26,6 +26,18 @@ We made a playground for our later experiments with CUDA. Currently, our referen
 
 Results are quite predictable: four physical core **Intel i5-4690K** gives us robust **4x** speedup in parallel implementation with 4 threads, compared to sequential one. So, I'm looking forward to seeing how faster the CUDA implementation will be :)
 
+| Image resolution | Sequential processing time | Parallel processing time |
+| ---------------- | -------------------------- | ------------------------ |
+| 512x512          | 914.267ms                  | 217.792ms                |
+| 1024x1024        | 3815.428ms                 | 912.259ms                |
+| 2048x2048        | 14299.042ms                | 3562.054ms               |
+
 ![Performance plot](../plots/chapter-0-performance.png)
+
+| Image resolution | Sequential speedup | Parallel speedup |
+| ---------------- | ------------------ | ---------------- |
+| 512x512          | 1.000              | 4.198            |
+| 1024x1024        | 1.000              | 4.182            |
+| 2048x2048        | 1.000              | 4.014            |
 
 ![Speedup plot](../plots/chapter-0-speedup.png)

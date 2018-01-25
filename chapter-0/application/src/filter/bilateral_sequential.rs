@@ -76,25 +76,23 @@ mod tests {
     use test::Bencher;
 
     #[test]
-    fn should_produce_correct_image() {
+    fn should_produce_correct_image_512() {
+        let input = Image::open("../../fixtures/input-512.png").unwrap();
+
+        let current_output = filter(&input, 5, 3.5, 3.0);
+        let reference_output = Image::open("../../fixtures/ref-output-512.png").unwrap();
+
+        compare_images(&current_output, &reference_output);
+    }
+
+    #[test]
+    fn should_produce_correct_image_1024() {
         let input = Image::open("../../fixtures/input-1024.png").unwrap();
 
         let current_output = filter(&input, 5, 3.5, 3.0);
         let reference_output = Image::open("../../fixtures/ref-output-1024.png").unwrap();
 
-        assert_eq!(current_output.width, reference_output.width);
-        assert_eq!(current_output.height, reference_output.height);
-        assert_eq!(current_output.pixels.len(), reference_output.pixels.len());
-
-        let mut defferent_pixels_count = 0;
-
-        for index in 0..current_output.pixels.len() {
-            if current_output.pixels[index] != reference_output.pixels[index] {
-                defferent_pixels_count += 1;
-            }
-        }
-
-        assert_eq!(defferent_pixels_count, 0);
+        compare_images(&current_output, &reference_output);
     }
 
     #[bench]
@@ -116,6 +114,21 @@ mod tests {
         let input = Image::open("../../fixtures/input-2048.png").unwrap();
 
         b.iter(|| filter(&input, 5, 3.5, 3.0))
+    }
+
+    fn compare_images(current: &Image, reference: &Image) {
+        assert_eq!(current.width, reference.width);
+        assert_eq!(current.height, reference.height);
+        assert_eq!(current.pixels.len(), reference.pixels.len());
+
+        let mut defferent_pixels_count = 0;
+        for index in 0..current.pixels.len() {
+            if current.pixels[index] != reference.pixels[index] {
+                defferent_pixels_count += 1;
+            }
+        }
+
+        assert_eq!(defferent_pixels_count, 0);
     }
 }
 
