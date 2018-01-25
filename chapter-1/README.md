@@ -189,7 +189,7 @@ To run the CUDA version of a filter from [Chapter 0](../chapter-0/README.md) we 
 5. Copy output image from GPU memory into RAM.
 6. Free GPU memory.
 
-The code located at [`application/filter/bilateral_cuda.rs`](application/filter/bilateral_cuda.rs).
+The code located at [`application/src/filter/bilateral_cuda.rs`](application/src/filter/bilateral_cuda.rs).
 
 Here is some notes:
 
