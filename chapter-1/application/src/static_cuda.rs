@@ -46,9 +46,7 @@ impl Deref for StaticContext {
 
 impl StaticModule {
     pub fn new(context: &'static StaticContext) -> Self {
-        let ptx_bytecode = CString::new(include_str!(
-            "../../kernel/target/nvptx64-nvidia-cuda/release/deps/chapter_1_kernel.ptx"
-        ));
+        let ptx_bytecode = CString::new(include_str!(env!("KERNEL_PTX_PATH")));
 
         StaticModule(
             context

@@ -1,0 +1,2 @@
+[workspace]
+members = ["chapter-0/application", "chapter-1/application", "chapter-1/kernel"]
