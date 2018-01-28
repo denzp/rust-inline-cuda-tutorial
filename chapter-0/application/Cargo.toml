@@ -1,9 +1,0 @@
-[package]
-name = "chapter-0-application"
-version = "0.1.0"
-authors = ["Denys <denys.zariaiev@gmail.com>"]
-
-[dependencies]
-png = "0.7"
-clap = "2.24"
-rayon = "0.7"

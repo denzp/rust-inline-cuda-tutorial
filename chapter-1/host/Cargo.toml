@@ -1,11 +1,17 @@
 [package]
-name = "chapter-1-application"
+name = "chapter-1"
 version = "0.1.0"
 authors = ["Denys Zariaiev <denys.zariaiev@gmail.com>"]
-build = "build_kernel.rs"
+build = "build.rs"
 
 [dependencies]
 png = "0.7"
-clap = "2.24"
 lazy_static = "0.2"
 cuda = { git = "https://github.com/japaric/cuda" }
+
+[dev-dependencies]
+criterion = "0.1"
+
+[[bench]]
+name = "chapter-1-benchmark"
+harness = false

@@ -147,7 +147,7 @@ For this tutorial, I decided to stick with [japaric/cuda](https://github.com/jap
 
 Also, for convenient workflow, we could leverage [cargo build script](http://doc.crates.io/build-script.html) to build PTX assembly.
 Then we won't need to run `xargo` every time we change kernel code.
-The script can be seen at [`application/build_kernel.rs`](application/build_kernel.rs).
+The script can be seen at [`host/build.rs`](host/build.rs).
 
 ### How to load the PTX assembly
 With **japaric/cuda** we need to perform next steps:
@@ -177,7 +177,7 @@ lazy_static! {
 }
 ```
 
-More details can be found at [`application/src/static_cuda.rs`](application/src/static_cuda.rs).
+More details can be found at [`host/src/static_cuda.rs`](host/src/static_cuda.rs).
 
 ### Executing the kernel
 To run the CUDA version of a filter from [Chapter 0](../chapter-0/README.md) we need:
@@ -189,7 +189,7 @@ To run the CUDA version of a filter from [Chapter 0](../chapter-0/README.md) we 
 5. Copy output image from GPU memory into RAM.
 6. Free GPU memory.
 
-The code located at [`application/src/filter/bilateral_cuda.rs`](application/src/filter/bilateral_cuda.rs).
+The code located at [`host/src/filter/bilateral_cuda.rs`](host/src/filter/bilateral_cuda.rs).
 
 Here is some notes:
 
@@ -198,24 +198,24 @@ Here is some notes:
 * **Don't forget!** CUDA contexts are thread-dependent. We have to call `cuCtxSetCurrent` (or `Context::set_current(&self)` in our case) if the current thread doesn't own the context.
 
 ## Results
-Performance-wise the results are impressive. CUDA implementation gives us **~60-70x** speedup over sequential algorithm on **GTX 1080** GPU.
+Performance-wise the results are impressive. CUDA implementation gives about **60x** speedup over sequential algorithm on **GTX 1080** GPU.
 
-| Image resolution | Sequential processing time | Parallel processing time |
-| ---------------- | -------------------------- | ------------------------ |
-| 512x512          | 914.267ms                  | 15.190ms                 |
-| 1024x1024        | 3815.428ms                 | 55.069ms                 |
-| 2048x2048        | 14299.042ms                | 220.193ms                |
-| 4096x4096        | -                          | 947.654ms                |
+Benchmarking with `criterion.rs` gives us next performance measurements:
+
+```
+cuda-512                time:   [14.014ms 14.198ms 14.432ms]
+cuda-1024               time:   [53.664ms 53.816ms 54.001ms]
+cuda-2048               time:   [224.23ms 225.33ms 226.21ms]
+cuda-4096               time:   [929.81ms 958.56ms 984.98ms]
+```
 
 ![Performance plot](../plots/chapter-1-performance.png)
 
-| Image resolution | Sequential speedup | CUDA speedup |
-| ---------------- | ------------------ | ------------ |
-| 512x512          | 1.000              | 60.189       |
-| 1024x1024        | 1.000              | 69.284       |
-| 2048x2048        | 1.000              | 64.939       |
-
-![Speedup plot](../plots/chapter-1-speedup.png)
+| Image resolution | CUDA speedup |
+| ---------------- | ------------ |
+| 512x512          | 56.008       |
+| 1024x1024        | 59.503       |
+| 2048x2048        | 56.837       |
 
 ## Next steps
 In next chapters, we are going to merge both crates - device and host codebases.

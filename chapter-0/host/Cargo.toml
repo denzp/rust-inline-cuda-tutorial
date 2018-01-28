@@ -1,0 +1,15 @@
+[package]
+name = "chapter-0"
+version = "0.1.0"
+authors = ["Denys <denys.zariaiev@gmail.com>"]
+
+[dependencies]
+png = "0.7"
+rayon = "0.7"
+
+[dev-dependencies]
+criterion = "0.1"
+
+[[bench]]
+name = "chapter-0-benchmark"
+harness = false

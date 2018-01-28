@@ -24,20 +24,24 @@ Let's stick to the naive algorithm from [Wikipedia]. We are interested in final 
 ## Results
 We made a playground for our later experiments with CUDA. Currently, our reference implementation of the algorithm has been implemented in a sequential and parallel way (almost without differences).
 
-Results are quite predictable: four physical core **Intel i5-4690K** gives us robust **4x** speedup in parallel implementation with 4 threads, compared to sequential one. So, I'm looking forward to seeing how faster the CUDA implementation will be :)
+Results are quite predictable: four physical core **Intel i5-4690K** gives us close to **4x** speedup in parallel implementation with 4 threads, compared to sequential one. So, I'm looking forward to seeing how faster the CUDA implementation will be :)
 
-| Image resolution | Sequential processing time | Parallel processing time |
-| ---------------- | -------------------------- | ------------------------ |
-| 512x512          | 914.267ms                  | 217.792ms                |
-| 1024x1024        | 3815.428ms                 | 912.259ms                |
-| 2048x2048        | 14299.042ms                | 3562.054ms               |
+Benchmarking with `criterion.rs` gives us next performance measurements:
+
+```
+sequential-512          time:   [794.95ms 795.20ms 795.50ms]
+sequential-1024         time:   [3.2013s 3.2022s 3.2030s]
+sequential-2048         time:   [12.798s 12.807s 12.822s]
+
+parallel-512            time:   [206.77ms 206.95ms 207.10ms]
+parallel-1024           time:   [834.63ms 835.50ms 836.43ms]
+parallel-2048           time:   [3.3409s 3.3454s 3.3497s]
+```
 
 ![Performance plot](../plots/chapter-0-performance.png)
 
-| Image resolution | Sequential speedup | Parallel speedup |
-| ---------------- | ------------------ | ---------------- |
-| 512x512          | 1.000              | 4.198            |
-| 1024x1024        | 1.000              | 4.182            |
-| 2048x2048        | 1.000              | 4.014            |
-
-![Speedup plot](../plots/chapter-0-speedup.png)
+| Image resolution | Parallel speedup |
+| ---------------- | ---------------- |
+| 512x512          | 3.842            |
+| 1024x1024        | 3.833            |
+| 2048x2048        | 3.828            |
