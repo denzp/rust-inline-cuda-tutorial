@@ -12,6 +12,9 @@ cuda = { git = "https://github.com/japaric/cuda" }
 [dev-dependencies]
 criterion = "0.1"
 
+[build-dependencies]
+ptx-builder = "0.1"
+
 [[bench]]
 name = "chapter-1-benchmark"
 harness = false

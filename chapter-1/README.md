@@ -17,32 +17,43 @@ We need `xargo` to build (because rust doesn't come with a prebuilt one) `libcor
 Also, `ptx-linker` helps us with linking of multiple crates and can also help to avoid failed [LLVM i128 assertions - rust#38824](https://github.com/rust-lang/rust/issues/38824).
 
 ### How to compile the PTX assembly
-Original instructions can be taken from [japaric/nvptx](https://github.com/japaric/nvptx), but we will use modified steps, mainly because of `ptx-linker`:
+There are an **easy**, **advanced** and **original** ways to develop CUDA crates.
 
-1. Create "kernels" **dylib** crate.
-<br />Otherwise, rust won't call the linker.
-2. Add as the crate dependency `nvptx-builtins = "0.1.0"`.
+* The **easy** way is to use [ptx-builder](https://crates.io/crates/ptx-builder) helper to automatically run `xargo` and eventually a `ptx-linker`.
+* The **advanced** way involves manual compilation described in [ptx-linker](https://crates.io/crates/ptx-linker) README.
+* The **original** way is using only `xargo` with `--emit asm` rustc flag and can be found at [japaric/nvptx](https://github.com/japaric/nvptx).
+
+This chapter evolved from **original** to **advanced**, and finally to **easy** approach.
+During preparation of this chapter, the `ptx-linker` and `ptx-builder` were created.
+Each milestone gave significant convenience improvement and whole workflow advantages.
+
+Needless to say, are going to use an **easy** from now on :)
+
+There should be couple preparation steps to be made:
+
+1. First, we need to create "host" and "device" crates.
+<br />The device crate type must be set to **dylib** in order to involve a linker.
+2. Our device crate should has a `nvptx-builtins = "0.1.0"` as dependency.
 <br />We need it to access CUDA buildtins intrinsics.
-3. Copy suggested [nvptx target definition](https://github.com/denzp/rust-ptx-linker/blob/master/examples/depenencies/nvptx64-nvidia-cuda.json) from [denzp/rust-ptx-linker](https://github.com/denzp/rust-ptx-linker) to the crate root.
-<br />We need it because the `nvptx64-nvidia-cuda` target is not included into the Rust compiler by-default.
-4. Write the code :)
-5. Make rust and linker happy.
+3. Also, we need to follow instructions from [ptx-builder](https://crates.io/crates/ptx-builder) helper for the host crate:
+<br />create a `build.rs` script and add the lib as `build-dependency`.
+4. Finally, we need to make Rust happy.
 <br />Since we are building a kind of **dylib** we need to provide a dummy `panic_fmt`:
+
 ``` rust
 #[lang = "panic_fmt"]
 fn panic_fmt() -> ! {
     loop {}
 }
 ```
-6. Run `xargo build` with args `--release --target nvptx64-nvidia-cuda`.
-7. Locate just created PTX assembly file, at `${CRATE_ROOT}/target/nvptx64-nvidia-cuda/release/${CRATE_NAME}.ptx`.
+
+After these steps, we are ready to start CUDA development!
 
 ### Kernels and device functions
 We need to decide which functions should be kernels, and which are just device functions.
-It's important to assign kernels a special ABI with `extern "ptx-kernel"` and prevent rust from mangling their names.
+It's important to assign kernels a special ABI with `extern "ptx-kernel"` and prevent Rust from mangling their names.
 
 Next example shows a significant difference between the two types of functions and mangling:
-
 ``` rust
 // Kernel function:
 #[no_mangle]
@@ -68,14 +79,16 @@ _ZN16chapter_1_kernel17bilateral_filter28whateverE(/*...*/)
 _ZN16chapter_1_kernel8w_kernel17hab5b2aabbc8bc703E(/*...*/)
 ```
 
-Both first and second functions are kernels and can be executed from a GPU device, thanks to `.visible .entry`.
+Both first and second functions are kernels and can be scheduled for execution on a GPU device, thanks to `.visible .entry`.
+The third function can be called only from kernels or other device functions.
+
 Hope you agree with me, that it's more convenient to call the first kernel with clear name than with second with mangled name ;)
 
 ### CUDA intrinsics
-Normally we can't avoid using block and thread indices in kernels, at least because it's the core of parallelization.
+Normally we can't avoid using block and thread indices in kernels, at least because it's the essential part of parallelization.
 
 In C/C++ code they can be accessed via `blockIdx.{x, y, z}`, `blockDim.{x, y, z}` and `threadIdx.{x, y, z}`.
-In rust we must use [LLVM intrinsics](https://llvm.org/docs/NVPTXUsage.html#llvm-nvvm-read-ptx-sreg) which can be accessed with:
+In Rust we must use [LLVM intrinsics](https://llvm.org/docs/NVPTXUsage.html#llvm-nvvm-read-ptx-sreg) which can be accessed with:
 
 ``` rust
 #![feature(platform_intrinsics)]
@@ -88,11 +101,12 @@ extern "platform-intrinsic" {
 }
 ```
 
-But we don't really need to define them in each device-side crate, we will them already defined in [japaric/nvptx-builtins](https://github.com/japaric/nvptx-builtins/blob/master/src/lib.rs).
+But we don't really need to define them in each device crate, we will use already defined in [japaric/nvptx-builtins](https://github.com/japaric/nvptx-builtins/blob/master/src/lib.rs).
 
 ### Absence of `std`
-We have to write `#![no_std]` code because, pretty obviously, original `std` crate cannot be easily compiled for CUDA (and in most cases, you won't need it).
-This means you also won't have access to any math from `std`. You can workaround math issue in couple ways.
+We have to write `#![no_std]` code because, pretty obviously, original `std` crate cannot be easily compiled for CUDA (and in most cases, we won't even need it).
+This means you also won't have access to any math from `std`.
+You can workaround math issue in couple ways.
 
 #### LLVM intrinsics
 First, you can use [LLVM and Rust intrinsics](https://github.com/rust-lang/rust/blob/afa1240e57330d85a372db4e28cd8bc8fa528ccb/src/libcore/intrinsics.rs#L1040):
@@ -111,7 +125,8 @@ pub unsafe extern "ptx-kernel" fn foo(src: *const f64, dst: *mut f64) {
 Here, the `sqrtf64` call will be translated to a `sqrt.rn.f64` PTX instruction.
 
 The approach looks quite okay, but it's not really so nice as it might look like.
-NVPTX target doesn't support all the intrinsics that LLVM provides us. The next code can't be compiled:
+NVPTX target doesn't support all the intrinsics that LLVM declares.
+For example, the next code can't be compiled:
 
 ``` rust
 extern "rust-intrinsic" {
@@ -124,7 +139,7 @@ pub unsafe extern "ptx-kernel" fn foo(src: *const f64, dst: *mut f64) {
 }
 ```
 
-with error:
+because of error:
 
 ```
 LLVM ERROR: Cannot select: t13: i64 = ExternalSymbol'exp'
@@ -140,14 +155,8 @@ Alternatively, you can use any math library written in Rust and which doesn't ha
 We will use the approach in this tutorial. The chosen math library is [nagisa/math.rs](https://github.com/nagisa/math.rs).
 
 ## Host code crate
-
-Since we should already have a PTX assembly, we are free to choose (or maybe even write own) CUDA bindings.
-We are interested low-level CUDA driver API.
-For this tutorial, I decided to stick with [japaric/cuda](https://github.com/japaric/cuda).
-
-Also, for convenient workflow, we could leverage [cargo build script](http://doc.crates.io/build-script.html) to build PTX assembly.
-Then we won't need to run `xargo` every time we change kernel code.
-The script can be seen at [`host/build.rs`](host/build.rs).
+At this point, we should already have a PTX assembly, we now need to decide about CUDA host bindings.
+For this chapter, we will use a [japaric/cuda](https://github.com/japaric/cuda) because it has all basic stuff we need.
 
 ### How to load the PTX assembly
 With **japaric/cuda** we need to perform next steps:
@@ -158,7 +167,9 @@ With **japaric/cuda** we need to perform next steps:
 4. Create `driver::Module` instance with PTX assembly.
 5. Create `driver::Function` instance with the kernel name (your `pub extern "ptx-kernel"` function from device code crate).
 
-We are going to provide the assembly for `driver::Module` with a help of macro: `include_str!("path/to/assembly.ptx")`. That will store PTX at compile-time and we should not care about shipping the assembly with executable.
+We are going to provide the assembly for `driver::Module` with a help of macro: `include_str!("path/to/assembly.ptx")`.
+That will store PTX at compile-time and we should not care about shipping the assembly with executable.
+The path to assembly will be provided by environment variable `KERNEL_PTX_PATH` from our `build.rs`.
 
 For easier understanding of the example, we will keep CUDA stuff as statics.
 It's not a production-grade approach, but enough for our small demonstration application.
@@ -193,7 +204,6 @@ The code located at [`host/src/filter/bilateral_cuda.rs`](host/src/filter/bilate
 
 Here is some notes:
 
-* At this point, we use our statics `CUDA_CTX`, `CUDA_MODULE` and `CUDA_KERNEL`.
 * Since our test images have power-of-two dimensions, it's safe to just choose block size `(8, 8)` and then calculate grid as `(WIDTH / 8, HEIGHT / 8)`.
 * **Don't forget!** CUDA contexts are thread-dependent. We have to call `cuCtxSetCurrent` (or `Context::set_current(&self)` in our case) if the current thread doesn't own the context.
 
