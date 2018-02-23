@@ -1,4 +1,4 @@
-#![feature(abi_ptx, intrinsics, lang_items)]
+#![feature(abi_ptx, intrinsics)]
 #![deny(warnings)]
 #![no_std]
 
@@ -120,9 +120,4 @@ impl MutImage {
     unsafe fn mut_pixel(&mut self, i: i32, j: i32) -> &mut Pixel {
         &mut *self.pixels.offset(self.offset(i, j))
     }
-}
-
-#[lang = "panic_fmt"]
-fn panic_fmt() -> ! {
-    loop {}
 }

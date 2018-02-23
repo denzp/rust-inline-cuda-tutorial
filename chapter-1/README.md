@@ -27,25 +27,15 @@ This chapter evolved from **original** to **advanced**, and finally to **easy** 
 During preparation of this chapter, the `ptx-linker` and `ptx-builder` were created.
 Each milestone gave significant convenience improvement and whole workflow advantages.
 
-Needless to say, are going to use an **easy** from now on :)
+Needless to say, we are going to use an **easy** from now on :)
 
 There should be couple preparation steps to be made:
 
 1. First, we need to create "host" and "device" crates.
-<br />The device crate type must be set to **dylib** in order to involve a linker.
 2. Our device crate should has a `nvptx-builtins = "0.1.0"` as dependency.
 <br />We need it to access CUDA buildtins intrinsics.
 3. Also, we need to follow instructions from [ptx-builder](https://crates.io/crates/ptx-builder) helper for the host crate:
-<br />create a `build.rs` script and add the lib as `build-dependency`.
-4. Finally, we need to make Rust happy.
-<br />Since we are building a kind of **dylib** we need to provide a dummy `panic_fmt`:
-
-``` rust
-#[lang = "panic_fmt"]
-fn panic_fmt() -> ! {
-    loop {}
-}
-```
+<br />create a `build.rs` script and add the helper as `build-dependency`.
 
 After these steps, we are ready to start CUDA development!
 
@@ -231,6 +221,6 @@ cuda-4096               time:   [929.81ms 958.56ms 984.98ms]
 In next chapters, we are going to merge both crates - device and host codebases.
 Current implementation might be good enough unless we have some code to share between them.
 
-Even in our tutorial we such case: every change on `Pixel` struct should be reflected in both crates.
+Even in our tutorial we have such case: every change on `Pixel` struct should be reflected in both crates.
 
 So, let's go on and try to solve this inconvenience :)

@@ -6,6 +6,3 @@ version = "0.1.0"
 [dependencies]
 nvptx-builtins = "0.1"
 math = { git = "https://github.com/nagisa/math.rs.git" }
-
-[lib]
-crate_type = ["dylib"]
