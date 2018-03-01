@@ -3,7 +3,7 @@ use cuda::driver;
 use cuda::driver::{Any, Block, Direction, Error as CudaError, Grid};
 
 use image::{Image, Pixel};
-use static_cuda::{CUDA_CTX, CUDA_KERNEL};
+use static_cuda::{CUDA_CTX, CUDA_MODULE};
 
 pub fn filter(
     source: &Image,
@@ -12,6 +12,7 @@ pub fn filter(
     sigma_r: f64,
 ) -> Result<Image, CudaError> {
     let mut destination = Image::new(source.width, source.height);
+    let kernel = CUDA_MODULE.kernel("bilateral_filter")?;
 
     CUDA_CTX.set_current()?;
 
@@ -27,7 +28,7 @@ pub fn filter(
         )?;
     }
 
-    CUDA_KERNEL.launch(
+    kernel.launch(
         &[
             Any(&d_src),
             Any(&d_dst),
@@ -46,6 +47,7 @@ pub fn filter(
             destination.pixels.len(),
             Direction::DeviceToHost,
         )?;
+
         driver::deallocate(d_src)?;
         driver::deallocate(d_dst)?;
     }

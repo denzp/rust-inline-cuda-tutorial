@@ -169,12 +169,10 @@ use cuda::driver::{Context, Module, Function};
 
 pub struct StaticContext(Context);
 pub struct StaticModule(Module<'static>);
-pub struct StaticKernel(Function<'static, 'static>);
 
 lazy_static! {
     pub static ref CUDA_CTX: StaticContext = StaticContext::new();
     pub static ref CUDA_MODULE: StaticModule = StaticModule::new(&CUDA_CTX);
-    pub static ref CUDA_KERNEL: StaticKernel = StaticKernel::new(&CUDA_MODULE);
 }
 ```
 
