@@ -1,0 +1,17 @@
+[package]
+name = "chapter-2"
+version = "0.1.0"
+authors = ["Denys Zariaiev <denys.zariaiev@gmail.com>"]
+build = "build.rs"
+
+[target.'cfg(not(target_os = "cuda"))'.dependencies]
+png = "0.7"
+lazy_static = "0.2"
+cuda = { git = "https://github.com/japaric/cuda" }
+
+[target.'cfg(target_os = "cuda")'.dependencies]
+nvptx-builtins = "0.1"
+math = { git = "https://github.com/nagisa/math.rs.git" }
+
+[build-dependencies]
+ptx-builder = "0.3"

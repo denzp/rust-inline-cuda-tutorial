@@ -219,6 +219,7 @@ cuda-4096               time:   [929.81ms 958.56ms 984.98ms]
 In next chapters, we are going to merge both crates - device and host codebases.
 Current implementation might be good enough unless we have some code to share between them.
 
-Even in our tutorial we have such case: every change on `Pixel` struct should be reflected in both crates.
+We might change kernel arguments only in one of the crates.
+Or, in our tutorial, we might change `Pixel` struct (add alpha channel, for example) and forget to reflect changes on the other crate.
 
 So, let's go on and try to solve this inconvenience :)

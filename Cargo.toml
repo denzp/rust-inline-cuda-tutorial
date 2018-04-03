@@ -1,2 +1,7 @@
 [workspace]
-members = ["chapter-0/host", "chapter-1/host", "chapter-1/device"]
+members = [
+    "chapter-0/host",
+    "chapter-1/host",
+    "chapter-1/device",
+    "chapter-2/host",
+]
