@@ -70,7 +70,7 @@ pub trait KernelPlaceholder {
 }
 
 pub struct Kernel<F: KernelPlaceholder> {
-    kernel: Function<'static, 'static>,
+    handle: Function<'static, 'static>,
     signature: PhantomData<F>,
 }
 
@@ -79,7 +79,7 @@ impl<F: KernelPlaceholder> Kernel<F> {
         let kernel_name = CString::new(F::get_name()).expect("Unable to create kernel name string");
 
         Ok(Kernel {
-            kernel: module.function(&kernel_name)?,
+            handle: module.function(&kernel_name)?,
             signature: PhantomData::default(),
         })
     }
@@ -116,7 +116,7 @@ where
         i4: I4,
         i5: I5,
     ) -> Result<(), driver::Error> {
-        self.kernel.launch(
+        self.handle.launch(
             &[Any(&i1), Any(&i2), Any(&i3), Any(&i4), Any(&i5)],
             grid,
             block,
