@@ -36,6 +36,12 @@ There should be couple preparation steps to be made:
 <br />We need it to access CUDA buildtins intrinsics.
 3. Also, we need to follow instructions from [ptx-builder](https://crates.io/crates/ptx-builder) helper for the host crate:
 <br />create a `build.rs` script and add the helper as `build-dependency`.
+4. *Optional:* Trigger an error when we accidentaly compile device crate with host toolchain.
+<br />Add to device crate code:
+``` rust
+#[cfg(not(target_os = "cuda"))]
+compile_error!("This is a CUDA crate. Building it with host toolchain is not possible.");
+```
 
 After these steps, we are ready to start CUDA development!
 
