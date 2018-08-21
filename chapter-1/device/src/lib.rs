@@ -2,6 +2,9 @@
 #![deny(warnings)]
 #![no_std]
 
+#[cfg(not(target_os = "cuda"))]
+compile_error!("This is a CUDA crate. Building it with host toolchain is not possible.");
+
 use core::cmp::{max, min};
 
 extern crate nvptx_builtins;
